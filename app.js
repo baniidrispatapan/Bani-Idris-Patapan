@@ -91,14 +91,44 @@ $("compareBtn").addEventListener("click", async ()=>{
     box.innerHTML=`<div class="error" style="color:#ffd5d5">Gagal membaca hubungan: ${esc(error.message)}</div>`;
     return;
   }
+
   const rel=data || {};
   const title=relationTitle(rel);
+
+  let badges=[];
+  if(rel.type==="COLLATERAL"){
+    badges.push(rel.same_generation ? "Generasi sejajar" : `Selisih ${rel.generation_gap} generasi`);
+  }else{
+    badges.push("Hubungan nasab");
+  }
+  if(rel.is_spouse) badges.push("Juga pasangan");
+
+  let details="";
+  if(rel.type==="COLLATERAL"){
+    details += rel.common_ancestor_name
+      ? `<p>Leluhur bersama terdekat: <strong style="color:white">${esc(rel.common_ancestor_name)}</strong></p>`
+      : "";
+    if(rel.distance_a!=null && rel.distance_b!=null){
+      details += `<p>Jarak ke leluhur bersama: <strong style="color:white">${esc(personA.name)} ${rel.distance_a} generasi</strong> · <strong style="color:white">${esc(personB.name)} ${rel.distance_b} generasi</strong></p>`;
+    }
+    if(rel.same_generation===false && !rel.local_name_a_to_b && !rel.local_name_b_to_a){
+      details += `<p style="font-size:13px">Istilah kekerabatan lokal untuk pola beda generasi ini belum diverifikasi. Sementara aplikasi memakai label netral berdasarkan jarak nasab.</p>`;
+    }
+  }else if(rel.type==="DIRECT_ANCESTOR" || rel.type==="DIRECT_DESCENDANT"){
+    details += `<p>Jarak nasab: <strong style="color:white">${rel.distance} tingkat</strong></p>`;
+  }
+
+  if(rel.is_spouse){
+    details += `<p><strong style="color:white">Catatan:</strong> selain memiliki hubungan nasab, keduanya juga tercatat sebagai pasangan${rel.is_internal_marriage ? " sesama keturunan Bani Idris" : ""}.</p>`;
+  }
+
   box.innerHTML=`
     <p>${esc(personA.name)} ↔ ${esc(personB.name)}</p>
     <h3>${esc(title)}</h3>
-    <div class="relation-label">${rel.same_generation===false?`Selisih ${rel.generation_gap} generasi`:"Hubungan nasab"}</div>
-    ${rel.common_ancestor_name ? `<p>Leluhur bersama terdekat: <strong style="color:white">${esc(rel.common_ancestor_name)}</strong></p>`:""}
-    ${rel.cousin_degree!=null ? `<p>Tingkat pupu dasar: <strong style="color:white">${rel.cousin_degree} pupu</strong></p>`:""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px">
+      ${badges.map(b=>`<div class="relation-label" style="margin:0">${esc(b)}</div>`).join("")}
+    </div>
+    ${details}
     <div class="paths">
       ${pathHTML(personA.name,rel.path_a)}
       ${pathHTML(personB.name,rel.path_b)}
