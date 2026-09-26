@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Silsilah Bani Idris Patapan</title>
+  <meta name="description" content="Digital Genealogy & Nasab Explorer Bani Idris Patapan" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">BI</div>
+        <div>
+          <div class="brand-title">Bani Idris Patapan</div>
+          <div class="brand-sub">Digital Genealogy & Nasab Explorer</div>
+        </div>
+      </div>
+      <div class="status-pill"><span></span> Database aktif</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">SILSILAH KELUARGA</p>
+        <h1>Temukan hubungan nasab<br><em>dengan lebih mudah.</em></h1>
+        <p class="lead">Cari anggota keluarga, bandingkan dua nama, dan telusuri hubungan menuju leluhur bersama dalam data Bani Idris Patapan.</p>
+
+        <div class="hero-actions">
+          <button class="btn primary" data-scroll="#hubungan">Cari hubungan nasab</button>
+          <button class="btn ghost" data-scroll="#pencarian">Cari nama</button>
+        </div>
+      </section>
+
+      <section class="stats">
+        <article><strong id="statPeople">—</strong><span>Data anggota</span></article>
+        <article><strong id="statLinks">—</strong><span>Relasi nasab</span></article>
+        <article><strong id="statMarriages">—</strong><span>Pernikahan tercatat</span></article>
+        <article><strong id="statRefs">—</strong><span>Rujukan “Lihat =”</span></article>
+      </section>
+
+      <section class="panel" id="hubungan">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">FITUR UTAMA</p>
+            <h2>Cari Hubungan Nasab</h2>
+          </div>
+          <div class="badge">Beta · data belum seluruhnya terverifikasi</div>
+        </div>
+
+        <div class="relation-grid">
+          <div class="picker-wrap">
+            <label>Orang pertama</label>
+            <div class="picker">
+              <input id="personAInput" autocomplete="off" placeholder="Ketik nama atau kode, mis. A11" />
+              <div class="dropdown" id="personADropdown"></div>
+            </div>
+            <div class="selected-card empty" id="personASelected">Belum ada nama dipilih</div>
+          </div>
+
+          <div class="connector">↔</div>
+
+          <div class="picker-wrap">
+            <label>Orang kedua</label>
+            <div class="picker">
+              <input id="personBInput" autocomplete="off" placeholder="Ketik nama atau kode, mis. A21" />
+              <div class="dropdown" id="personBDropdown"></div>
+            </div>
+            <div class="selected-card empty" id="personBSelected">Belum ada nama dipilih</div>
+          </div>
+        </div>
+
+        <button class="btn primary wide" id="compareBtn" disabled>Temukan hubungan</button>
+
+        <div id="relationResult" class="result hidden"></div>
+      </section>
+
+      <section class="panel" id="pencarian">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">PENCARIAN DATA</p>
+            <h2>Cari Anggota Keluarga</h2>
+          </div>
+        </div>
+        <div class="search-box">
+          <input id="globalSearch" autocomplete="off" placeholder="Nama, kode, atau variasi nama..." />
+          <button class="btn primary" id="globalSearchBtn">Cari</button>
+        </div>
+        <div id="searchResults" class="cards"></div>
+      </section>
+
+
+
+      <section class="panel" id="pohon">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">POHON SILSILAH</p>
+            <h2>Visualisasi Keluarga</h2>
+          </div>
+          <div class="badge">Klik nama untuk pindah fokus</div>
+        </div>
+
+        <div class="search-box">
+          <input id="treeSearch" autocomplete="off" placeholder="Cari nama atau kode, mis. A1111" />
+          <button class="btn primary" id="treeSearchBtn">Tampilkan</button>
+        </div>
+        <div id="treeSuggestions" class="cards"></div>
+
+        <div id="treeToolbar" class="tree-toolbar hidden">
+          <button class="btn ghost" id="zoomOutBtn">−</button>
+          <button class="btn ghost" id="zoomResetBtn">100%</button>
+          <button class="btn ghost" id="zoomInBtn">+</button>
+          <button class="btn ghost" id="rootPathBtn">Jalur ke K. Idris</button>
+        </div>
+
+        <div id="treeViewport" class="tree-viewport hidden">
+          <div id="treeCanvas" class="tree-canvas"></div>
+        </div>
+
+        <div id="rootPathPanel" class="root-path-panel hidden"></div>
+      </section>
+
+      <section class="panel" id="profil">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">PROFIL & JALUR NASAB</p>
+            <h2>Profil Anggota</h2>
+          </div>
+        </div>
+        <div class="search-box">
+          <input id="profileSearch" autocomplete="off" placeholder="Cari nama atau kode untuk membuka profil..." />
+          <button class="btn primary" id="profileSearchBtn">Buka profil</button>
+        </div>
+        <div id="profileSuggestions" class="cards"></div>
+        <div id="profileView" class="profile-view hidden"></div>
+      </section>
+
+
+      <section class="panel" id="admin">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">ADMIN VERIFIKASI</p>
+            <h2>Verifikasi Data Silsilah</h2>
+          </div>
+          <div class="badge" id="adminBadge">Belum login</div>
+        </div>
+
+        <div id="adminAuthBox" class="admin-auth">
+          <div class="profile-card">
+            <h4>Login admin</h4>
+            <div class="admin-form-grid">
+              <input id="adminEmail" type="email" placeholder="Email admin" autocomplete="email" />
+              <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" />
+            </div>
+            <div class="hero-actions" style="margin-top:12px">
+              <button class="btn primary" id="adminLoginBtn">Masuk</button>
+              <button class="btn ghost hidden" id="adminLogoutBtn">Keluar</button>
+            </div>
+            <div id="adminAuthMessage" class="meta" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div id="adminWorkspace" class="hidden">
+          <div class="admin-toolbar">
+            <select id="adminStatusFilter">
+              <option value="">Semua status</option>
+              <option value="UNVERIFIED">UNVERIFIED</option>
+              <option value="NEEDS_CORRECTION">NEEDS_CORRECTION</option>
+              <option value="CONFLICT">CONFLICT</option>
+              <option value="VERIFIED">VERIFIED</option>
+              <option value="IMPORTED">IMPORTED</option>
+            </select>
+            <button class="btn ghost" id="adminRefreshBtn">Muat ulang</button>
+          </div>
+
+          <div class="admin-grid">
+            <div class="admin-list-wrap">
+              <div id="adminQueue" class="admin-queue"></div>
+            </div>
+
+            <div class="admin-editor">
+              <div id="adminEditorEmpty" class="tree-empty">Pilih data di sebelah kiri untuk diverifikasi.</div>
+
+              <form id="adminEditorForm" class="hidden">
+                <div class="profile-head">
+                  <div>
+                    <span class="code" id="editCurrentCode">—</span>
+                    <h3 id="editCurrentName">—</h3>
+                    <div class="meta" id="editSourceInfo"></div>
+                  </div>
+                  <div class="status-chip" id="editCurrentStatus">UNVERIFIED</div>
+                </div>
+
+                <div class="edit-grid">
+                  <label>Nama tampilan
+                    <input id="editDisplayName" />
+                  </label>
+                  <label>Kode buku
+                    <input id="editBookCode" />
+                  </label>
+                  <label>Generasi
+                    <input id="editGeneration" type="number" min="0" max="10" />
+                  </label>
+                  <label>Kode lokasi
+                    <input id="editLocationCode" />
+                  </label>
+                </div>
+
+                <label>Alamat
+                  <textarea id="editAddress" rows="3"></textarea>
+                </label>
+
+                <label>Catatan
+                  <textarea id="editNotes" rows="4"></textarea>
+                </label>
+
+                <label>Status verifikasi
+                  <select id="editStatus">
+                    <option value="UNVERIFIED">UNVERIFIED</option>
+                    <option value="NEEDS_CORRECTION">NEEDS_CORRECTION</option>
+                    <option value="CONFLICT">CONFLICT</option>
+                    <option value="VERIFIED">VERIFIED</option>
+                    <option value="IMPORTED">IMPORTED</option>
+                  </select>
+                </label>
+
+                <label>Alasan / catatan verifikator
+                  <textarea id="editReason" rows="3" placeholder="Contoh: nama dikonfirmasi oleh keluarga, kode buku perlu koreksi, alamat diperbarui..."></textarea>
+                </label>
+
+                <div class="hero-actions" style="margin-top:14px">
+                  <button type="submit" class="btn primary">Simpan verifikasi</button>
+                  <button type="button" class="btn ghost" id="showHistoryBtn">Riwayat perubahan</button>
+                </div>
+              </form>
+
+              <div id="adminHistory" class="admin-history hidden"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notice">
+        <strong>Catatan sumber</strong>
+        <p>Data awal berasal dari buku <em>Silsilah Bani Idris Patapan 2025</em>. Entri impor ditandai belum terverifikasi sampai dikonfirmasi oleh keluarga/verifikator.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div>© 2026 Bani Idris Patapan</div>
+      <div>Versi awal · Nasab Explorer</div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
