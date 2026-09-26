@@ -1,21 +1,19 @@
-# Bani Idris Patapan — Nasab Explorer v0.4
+# Bani Idris Patapan — Nasab Explorer v0.5
 
-Tambahan v0.4:
-- Login admin menggunakan Supabase Auth
-- Tabel `app_admins` untuk whitelist admin
-- Antrean verifikasi berdasarkan status
-- Edit nama, kode buku, generasi, alamat, kode lokasi, catatan, status verifikasi
-- Audit trail otomatis ke `verification_history`
-- Riwayat perubahan per orang
-- Update hanya bisa dilakukan oleh user yang terdaftar sebagai admin
+Versi publik yang sudah diperkeras privasinya.
 
-Setup admin pertama:
-1. Buat user di Supabase Authentication > Users.
-2. Salin UUID user.
-3. Tambahkan ke tabel `public.app_admins`:
-   insert into public.app_admins (user_id, display_name)
-   values ('UUID_USER', 'Nama Admin');
-4. Login dari bagian Admin Verifikasi di aplikasi.
+Perubahan v0.5:
+- Statistik publik melalui RPC `get_public_stats()`
+- Pencarian publik tidak menampilkan alamat
+- Profil publik tidak menampilkan alamat, kode lokasi, tanggal lahir/wafat, atau catatan privat
+- Pohon silsilah publik tidak mengambil kolom alamat langsung
+- Admin tetap dapat melihat dan mengedit data lengkap melalui RPC admin
+- Hak SELECT tabel `people` untuk anon/authenticated dibatasi hanya ke kolom publik
 
-Status yang tersedia:
-IMPORTED, UNVERIFIED, NEEDS_CORRECTION, VERIFIED, CONFLICT.
+Backend: Supabase project `baniidrispatapan`.
+
+Untuk deploy Vercel:
+- Framework Preset: Other
+- Build Command: kosong/default
+- Output Directory: kosong/default
+- Root Directory: repository root

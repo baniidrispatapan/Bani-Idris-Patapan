@@ -13,16 +13,12 @@ document.querySelectorAll("[data-scroll]").forEach(btn => {
 });
 
 async function loadStats(){
-  const [p,l,m,r] = await Promise.all([
-    db.from("people").select("*",{count:"exact",head:true}),
-    db.from("parent_child").select("*",{count:"exact",head:true}),
-    db.from("marriages").select("*",{count:"exact",head:true}),
-    db.from("cross_references").select("*",{count:"exact",head:true}),
-  ]);
-  $("statPeople").textContent = p.count ?? "—";
-  $("statLinks").textContent = l.count ?? "—";
-  $("statMarriages").textContent = m.count ?? "—";
-  $("statRefs").textContent = r.count ?? "—";
+  const {data,error}=await db.rpc("get_public_stats");
+  if(error){ console.error(error); return; }
+  $("statPeople").textContent = data?.people ?? "—";
+  $("statLinks").textContent = data?.parent_child ?? "—";
+  $("statMarriages").textContent = data?.marriages ?? "—";
+  $("statRefs").textContent = data?.cross_references ?? "—";
 }
 
 async function searchPeople(q){
@@ -35,7 +31,7 @@ async function searchPeople(q){
 function optionHTML(p){
   return `<div class="option" data-id="${p.id}">
     <strong>${esc(p.name)}</strong>
-    <div class="meta">${esc(p.book_code || "tanpa kode")} · ID-${p.generation_no ?? "?"}${p.address ? " · "+esc(p.address) : ""}</div>
+    <div class="meta">${esc(p.book_code || "tanpa kode")} · ID-${p.generation_no ?? "?"}${""}</div>
   </div>`;
 }
 
@@ -121,7 +117,7 @@ async function doGlobalSearch(){
       <span class="code">${esc(p.book_code||"tanpa kode")}</span>
       <span class="verify">${esc(p.verification_status||"")}</span>
       <div class="meta" style="margin-top:10px">Generasi: ID-${p.generation_no ?? "?"}</div>
-      <div class="meta">${p.address?esc(p.address):"Alamat belum tercatat"}</div>
+      <div class="meta">Alamat disembunyikan pada tampilan publik</div>
     </article>`).join("");
 }
 $("globalSearchBtn").onclick=doGlobalSearch;
@@ -164,10 +160,10 @@ async function openProfile(person){
       <div class="profile-card"><h4>Orang tua</h4>${kin(profile.parents)}</div>
       <div class="profile-card"><h4>Pasangan</h4>${kin(profile.spouses)}</div>
       <div class="profile-card"><h4>Anak</h4>${kin(profile.children)}</div>
-      <div class="profile-card"><h4>Alamat & catatan</h4>
-        <div class="meta">${profile.address?esc(profile.address):"Alamat belum tercatat"}</div>
-        ${profile.location_code?`<div class="meta">Kode lokasi: ${esc(profile.location_code)}</div>`:""}
-        ${profile.notes?`<div class="meta" style="margin-top:8px">${esc(profile.notes)}</div>`:""}
+      <div class="profile-card"><h4>Sumber & verifikasi</h4>
+        <div class="meta">${profile.source_page?`Sumber buku halaman ${profile.source_page}`:"Halaman sumber belum tercatat"}</div>
+        <div class="meta" style="margin-top:8px">Status: ${esc(profile.verification_status||"UNVERIFIED")}</div>
+        <div class="meta" style="margin-top:8px">Alamat, kode lokasi, tanggal lahir/wafat, dan catatan privat hanya dapat dilihat oleh admin/verifikator.</div>
       </div>
     </div>
     ${lineageHtml}
@@ -185,7 +181,7 @@ async function profileSearch(){
     <article class="person-card profile-result" data-i="${i}" style="cursor:pointer">
       <h3>${esc(p.name)}</h3>
       <span class="code">${esc(p.book_code||"tanpa kode")}</span>
-      <div class="meta" style="margin-top:8px">ID-${p.generation_no ?? "?"}${p.address?" · "+esc(p.address):""}</div>
+      <div class="meta" style="margin-top:8px">ID-${p.generation_no ?? "?"}${""}</div>
     </article>`).join("");
   out.querySelectorAll(".profile-result").forEach((el)=>{
     el.onclick=()=>openProfile(rows[Number(el.dataset.i)]);
@@ -291,16 +287,13 @@ function layoutTree(data){
   canvas.querySelectorAll(".tree-node").forEach(el=>{
     el.addEventListener("click",async ()=>{
       const id=el.dataset.personId;
-      const {data,error}=await db.from("people")
-        .select("id,book_code,canonical_name,display_name,generation_no,address,verification_status")
-        .eq("id",id).single();
+      const {data,error}=await db.rpc("get_person_profile",{p_person_id:id});
       if(!error && data){
         const p={
           id:data.id,
           book_code:data.book_code,
-          name:data.display_name||data.canonical_name,
+          name:data.name,
           generation_no:data.generation_no,
-          address:data.address,
           verification_status:data.verification_status
         };
         treeFocusPerson=p;
@@ -340,7 +333,7 @@ async function treeSearch(){
     <article class="person-card tree-result" data-i="${i}" style="cursor:pointer">
       <h3>${esc(p.name)}</h3>
       <span class="code">${esc(p.book_code||"tanpa kode")}</span>
-      <div class="meta" style="margin-top:8px">ID-${p.generation_no ?? "?"}${p.address?" · "+esc(p.address):""}</div>
+      <div class="meta" style="margin-top:8px">ID-${p.generation_no ?? "?"}${""}</div>
     </article>`).join("");
   out.querySelectorAll(".tree-result").forEach(el=>{
     el.onclick=async()=>{
@@ -484,7 +477,7 @@ async function selectAdminPerson(p){
   $("editStatus").value=p.verification_status||"UNVERIFIED";
   $("editReason").value="";
 
-  const {data:profile}=await db.rpc("get_person_profile",{p_person_id:p.id});
+  const {data:profile}=await db.rpc("admin_get_person_profile",{p_person_id:p.id});
   if(profile){
     $("editLocationCode").value=profile.location_code||"";
   }
